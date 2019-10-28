@@ -15,7 +15,7 @@ BATCH_SIZE = 80
 LEARNING_RATE = 1e-3
 EPOCH = 1000
 SHOW_STEPS = 200
-SAVE_STEP = 1
+SAVE_STEP = 100
 CODE_SIZE = 200
 DROP_RATE = 0.2
 CUDA = torch.cuda.is_available()
@@ -164,7 +164,7 @@ for epoch in range(EPOCH):
         # print(z)
         rebuild = decoder(z)
         KL = -0.5 * torch.sum(1 + 2. * logd - mean.pow(2) - torch.exp(2. * logd), [1])
-        loss = mse_loss(images, rebuild) #pass+ torch.mean(KL)
+        loss = mse_loss(images, rebuild) # + torch.mean(KL)
         loss.backward()
         optimizer.step()
 

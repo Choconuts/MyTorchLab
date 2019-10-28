@@ -126,6 +126,7 @@ dmypy.json
 .pyre/
 
 .gitignore
+.idea/
 .idea/.gitignore
 .idea/TorchLab.iml
 .idea/inspectionProfiles/
@@ -134,3 +135,8 @@ dmypy.json
 tutorials/data
 tutorials/save
 .idea/vcs.xml
+/style_gan/save/
+tutorials/gan_tst/data/
+tutorials/style_gan/output/
+tutorials/style_gan/save/
+/tutorials/gan_tst/data/

@@ -1,33 +1,38 @@
 import torch
-import numpy as np
-import math
 from torch.utils.data import DataLoader
-from torch.autograd import Variable
 from torch import nn, Tensor
 
 from torchvision import datasets
 from torchvision.transforms import transforms
 from torchvision.utils import save_image
+from utils.option import easy_parse_all_args
 
-BATCH_SIZE = 80
-LEARNING_RATE = 1e-3
-EPOCH = 100
-SHOW_STEPS = 200
-CUDA = False # torch.cuda.is_available()
 
-CLIP_VALUE = 1
-CRITIC_ITER = 2
+class OPT:
+
+    BATCH_SIZE = 80
+    LEARNING_RATE = 1e-3
+    EPOCH = 100
+    SHOW_STEPS = 200
+    CUDA = torch.cuda.is_available()
+
+    CLIP_VALUE = 1
+    CRITIC_ITER = 2
+
+
+opt = easy_parse_all_args(OPT)
+
 
 data_loader = DataLoader(
     datasets.MNIST(
-        root='data/mnist',
+        root='../data/mnist',
         train=True,
         download=True,
         transform=transforms.Compose(
             [transforms.Resize(28), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
         ),
     ),
-    batch_size=BATCH_SIZE,
+    batch_size=opt.BATCH_SIZE,
     shuffle=True,
 )
 
@@ -89,26 +94,26 @@ def compute_gradient_penalty(D, real_samples: Tensor, fake_samples: Tensor):
 generator = Generator()
 discriminator = Discriminator()
 
-if CUDA:
+if opt.CUDA:
     generator.cuda()
     discriminator.cuda()
 
-g_optimizer = torch.optim.Adam(generator.parameters(), lr=LEARNING_RATE)
-d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=LEARNING_RATE)
+g_optimizer = torch.optim.Adam(generator.parameters(), lr=opt.LEARNING_RATE)
+d_optimizer = torch.optim.Adam(discriminator.parameters(), lr=opt.LEARNING_RATE)
 
-for epoch in range(EPOCH):
+for epoch in range(opt.EPOCH):
     for i, (images, _) in enumerate(data_loader):
         assert isinstance(images, Tensor)
-        z = torch.randn(BATCH_SIZE, 784)
-        real_label = torch.ones(BATCH_SIZE).long()
-        fake_label = torch.zeros(BATCH_SIZE).long()
-        if CUDA:
+        z = torch.randn(opt.BATCH_SIZE, 784)
+        real_label = torch.ones(opt.BATCH_SIZE).long()
+        fake_label = torch.zeros(opt.BATCH_SIZE).long()
+        if opt.CUDA:
             images = images.cuda()
             z = z.cuda()
             real_label = real_label.cuda()
             fake_label = fake_label.cuda()
 
-        if i % CRITIC_ITER == 0:
+        if i % opt.CRITIC_ITER == 0:
             g_optimizer.zero_grad()
             fake_logits = discriminator(generator(z))
             g_loss = -torch.mean(fake_logits)
@@ -129,16 +134,16 @@ for epoch in range(EPOCH):
 
         # Clip weights of discriminator
         for p in discriminator.parameters():
-            p.data.clamp_(-CLIP_VALUE, CLIP_VALUE)
+            p.data.clamp_(-opt.CLIP_VALUE, opt.CLIP_VALUE)
 
-        if i % SHOW_STEPS == 0 and i % CRITIC_ITER == 0:
+        if i % opt.SHOW_STEPS == 0 and i % opt.CRITIC_ITER == 0:
             print(
                 "[Epoch %d/%d] [Batch %d/%d] [G loss: %f] [D loss: %f]"
-                % (epoch, EPOCH, i, len(data_loader), g_loss.item(), d_loss.item())
+                % (epoch, opt.EPOCH, i, len(data_loader), g_loss.item(), d_loss.item())
             )
 
-    z = torch.randn(BATCH_SIZE, 784)
-    if CUDA:
+    z = torch.randn(opt.BATCH_SIZE, 784)
+    if opt.CUDA:
         z = z.cuda()
     imgs = generator(z)
     imgs = imgs.view(imgs.size(0), 1, 28, 28)

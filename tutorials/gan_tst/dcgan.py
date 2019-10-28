@@ -98,8 +98,8 @@ adversarial_loss = torch.nn.BCELoss()
 
 # Initialize generator and discriminator
 generator = Generator()
-discriminator = Discriminator()
-
+discriminatoar = Discriminator()
+a
 if cuda:
     generator.cuda()
     discriminator.cuda()
