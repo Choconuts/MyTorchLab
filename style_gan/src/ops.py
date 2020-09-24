@@ -4,7 +4,7 @@ import math
 from torch import nn, Tensor
 from torch.nn import functional as nnf
 
-# from style_gan.config import *
+from style_gan.config import *
 
 
 class FC(nn.Module):
@@ -71,7 +71,9 @@ class ApplyStyleAffine(nn.Module):
         style = self.linear(latent)
         shape = [-1, 2, x.size(1), 1, 1]
         style = style.view(shape)
+        # save_sum(style.view(-1, 2 * x.size(1)), 3)
         x = x * (style[:, 0] + 1.) + style[:, 1]
+        # save_sum(x, 4)
         return x
 
 
